@@ -34,243 +34,238 @@ import com.microsoft.fluentui.tokenized.persona.Persona
 import com.microsoft.fluentui.tokenized.persona.PersonaList
 import com.microsoft.fluentuidemo.DemoActivity
 import com.microsoft.fluentuidemo.R
+import com.microsoft.fluentuidemo.V2DemoActivity
 import com.microsoft.fluentuidemo.databinding.V2ActivityComposeBinding
 import com.microsoft.fluentuidemo.util.DemoAppStrings
 import com.microsoft.fluentuidemo.util.getDemoAppString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class V2SearchBarActivity : DemoActivity() {
-    override val contentNeedsScrollableContainer: Boolean
-        get() = false
-
+class V2SearchBarActivity : V2DemoActivity() {
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val context: Context = this
-        val v2ActivityComposeBinding = V2ActivityComposeBinding.inflate(LayoutInflater.from(container.context), container,true)
-        v2ActivityComposeBinding.composeHere.setContent {
-            FluentTheme {
-                var autoCorrectEnabled: Boolean by rememberSaveable { mutableStateOf(false) }
-                var enableMicrophoneCallback: Boolean by rememberSaveable { mutableStateOf(true) }
-                var searchBarStyle: FluentStyle by rememberSaveable { mutableStateOf(FluentStyle.Neutral) }
-                var displayRightAccessory: Boolean by rememberSaveable { mutableStateOf(true) }
-                var induceDelay: Boolean by rememberSaveable { mutableStateOf(false) }
+        setActivityContent {
+            var autoCorrectEnabled: Boolean by rememberSaveable { mutableStateOf(false) }
+            var enableMicrophoneCallback: Boolean by rememberSaveable { mutableStateOf(true) }
+            var searchBarStyle: FluentStyle by rememberSaveable { mutableStateOf(FluentStyle.Neutral) }
+            var displayRightAccessory: Boolean by rememberSaveable { mutableStateOf(true) }
+            var induceDelay: Boolean by rememberSaveable { mutableStateOf(false) }
 
-                var selectedPeople: Person? by rememberSaveable { mutableStateOf(null) }
+            var selectedPeople: Person? by rememberSaveable { mutableStateOf(null) }
 
-                val listofPeople = listOf(
-                    Person(
-                        "Allan", "Munger",
-                        image = R.drawable.avatar_allan_munger,
-                        isActive = true
-                    ),
-                    Person(
-                        "Amanda", "Brady",
-                        isActive = false, status = AvatarStatus.Offline
-                    ),
-                    Person(
-                        "Abhay", "Singh",
-                        isActive = true, status = AvatarStatus.DND, isOOO = true
-                    ),
-                    Person(
-                        "Carlos", "Slathery",
-                        isActive = false, status = AvatarStatus.Busy, isOOO = true
-                    ),
-                    Person(
-                        "Celeste", "Burton",
-                        image = R.drawable.avatar_celeste_burton,
-                        isActive = true, status = AvatarStatus.Away
-                    ),
-                    Person(
-                        "Ankit", "Gupta",
-                        isActive = true, status = AvatarStatus.Unknown
-                    ),
-                    Person(
-                        "Miguel", "Garcia",
-                        image = R.drawable.avatar_miguel_garcia,
-                        isActive = true, status = AvatarStatus.Blocked
-                    )
+            val listofPeople = listOf(
+                Person(
+                    "Allan", "Munger",
+                    image = R.drawable.avatar_allan_munger,
+                    isActive = true
+                ),
+                Person(
+                    "Amanda", "Brady",
+                    isActive = false, status = AvatarStatus.Offline
+                ),
+                Person(
+                    "Abhay", "Singh",
+                    isActive = true, status = AvatarStatus.DND, isOOO = true
+                ),
+                Person(
+                    "Carlos", "Slathery",
+                    isActive = false, status = AvatarStatus.Busy, isOOO = true
+                ),
+                Person(
+                    "Celeste", "Burton",
+                    image = R.drawable.avatar_celeste_burton,
+                    isActive = true, status = AvatarStatus.Away
+                ),
+                Person(
+                    "Ankit", "Gupta",
+                    isActive = true, status = AvatarStatus.Unknown
+                ),
+                Person(
+                    "Miguel", "Garcia",
+                    image = R.drawable.avatar_miguel_garcia,
+                    isActive = true, status = AvatarStatus.Blocked
                 )
-                var filteredPeople by rememberSaveable { mutableStateOf(listofPeople.toMutableList()) }
+            )
+            var filteredPeople by rememberSaveable { mutableStateOf(listofPeople.toMutableList()) }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ListItem.SectionHeader(
+                    title = getDemoAppString(DemoAppStrings.ModifiableParameters),
+                    enableChevron = true,
+                    enableContentOpenCloseTransition = true,
+                    chevronOrientation = ChevronOrientation(90f, 0f),
                 ) {
-                    ListItem.SectionHeader(
-                        title = getDemoAppString(DemoAppStrings.ModifiableParameters),
-                        enableChevron = true,
-                        enableContentOpenCloseTransition = true,
-                        chevronOrientation = ChevronOrientation(90f, 0f),
-                    ) {
-                        Column {
-                            ListItem.Item(
-                                text = getDemoAppString(DemoAppStrings.AutoCorrect),
-                                subText = if (autoCorrectEnabled)
-                                    LocalContext.current.resources.getString(R.string.fluentui_enabled)
-                                else
-                                    LocalContext.current.resources.getString(R.string.fluentui_disabled),
-                                trailingAccessoryView = {
-                                    ToggleSwitch(
-                                        onValueChange = {
-                                            autoCorrectEnabled = !autoCorrectEnabled
-                                        },
-                                        checkedState = autoCorrectEnabled
-                                    )
-                                }
-                            )
-                            ListItem.Item(
-                                text = getDemoAppString(DemoAppStrings.MicrophoneCallback),
-                                subText = if (enableMicrophoneCallback)
-                                    LocalContext.current.resources.getString(R.string.fluentui_activated)
-                                else
-                                    LocalContext.current.resources.getString(R.string.fluentui_deactivated),
-                                trailingAccessoryView = {
-                                    ToggleSwitch(
-                                        onValueChange = {
-                                            enableMicrophoneCallback = !enableMicrophoneCallback
-                                        },
-                                        checkedState = enableMicrophoneCallback
-                                    )
-                                }
-                            )
-                            ListItem.Item(
-                                text = getDemoAppString(DemoAppStrings.Style),
-                                subText = if (searchBarStyle == FluentStyle.Neutral)
-                                    LocalContext.current.resources.getString(R.string.fluentui_neutral)
-                                else
-                                    LocalContext.current.resources.getString(R.string.fluentui_brand),
-                                trailingAccessoryView = {
-                                    ToggleSwitch(
-                                        onValueChange = {
-                                            searchBarStyle =
-                                                if (searchBarStyle == FluentStyle.Neutral)
-                                                    FluentStyle.Brand
-                                                else
-                                                    FluentStyle.Neutral
-                                        },
-                                        checkedState = searchBarStyle == FluentStyle.Brand
-                                    )
-                                }
-                            )
-                            ListItem.Item(
-                                text = getDemoAppString(DemoAppStrings.RightAccessoryView),
-                                subText = if (displayRightAccessory)
-                                    LocalContext.current.resources.getString(R.string.fluentui_enabled)
-                                else
-                                    LocalContext.current.resources.getString(R.string.fluentui_disabled),
-                                trailingAccessoryView = {
-                                    ToggleSwitch(
-                                        onValueChange = {
-                                            displayRightAccessory = !displayRightAccessory
-                                        },
-                                        checkedState = displayRightAccessory
-                                    )
-                                }
-                            )
+                    Column {
+                        ListItem.Item(
+                            text = getDemoAppString(DemoAppStrings.AutoCorrect),
+                            subText = if (autoCorrectEnabled)
+                                LocalContext.current.resources.getString(R.string.fluentui_enabled)
+                            else
+                                LocalContext.current.resources.getString(R.string.fluentui_disabled),
+                            trailingAccessoryView = {
+                                ToggleSwitch(
+                                    onValueChange = {
+                                        autoCorrectEnabled = !autoCorrectEnabled
+                                    },
+                                    checkedState = autoCorrectEnabled
+                                )
+                            }
+                        )
+                        ListItem.Item(
+                            text = getDemoAppString(DemoAppStrings.MicrophoneCallback),
+                            subText = if (enableMicrophoneCallback)
+                                LocalContext.current.resources.getString(R.string.fluentui_activated)
+                            else
+                                LocalContext.current.resources.getString(R.string.fluentui_deactivated),
+                            trailingAccessoryView = {
+                                ToggleSwitch(
+                                    onValueChange = {
+                                        enableMicrophoneCallback = !enableMicrophoneCallback
+                                    },
+                                    checkedState = enableMicrophoneCallback
+                                )
+                            }
+                        )
+                        ListItem.Item(
+                            text = getDemoAppString(DemoAppStrings.Style),
+                            subText = if (searchBarStyle == FluentStyle.Neutral)
+                                LocalContext.current.resources.getString(R.string.fluentui_neutral)
+                            else
+                                LocalContext.current.resources.getString(R.string.fluentui_brand),
+                            trailingAccessoryView = {
+                                ToggleSwitch(
+                                    onValueChange = {
+                                        searchBarStyle =
+                                            if (searchBarStyle == FluentStyle.Neutral)
+                                                FluentStyle.Brand
+                                            else
+                                                FluentStyle.Neutral
+                                    },
+                                    checkedState = searchBarStyle == FluentStyle.Brand
+                                )
+                            }
+                        )
+                        ListItem.Item(
+                            text = getDemoAppString(DemoAppStrings.RightAccessoryView),
+                            subText = if (displayRightAccessory)
+                                LocalContext.current.resources.getString(R.string.fluentui_enabled)
+                            else
+                                LocalContext.current.resources.getString(R.string.fluentui_disabled),
+                            trailingAccessoryView = {
+                                ToggleSwitch(
+                                    onValueChange = {
+                                        displayRightAccessory = !displayRightAccessory
+                                    },
+                                    checkedState = displayRightAccessory
+                                )
+                            }
+                        )
 
-                            ListItem.Item(
-                                text = "Induce Delay",
-                                subText = if (induceDelay)
-                                    LocalContext.current.resources.getString(R.string.fluentui_enabled)
-                                else
-                                    LocalContext.current.resources.getString(R.string.fluentui_disabled),
-                                trailingAccessoryView = {
-                                    ToggleSwitch(
-                                        onValueChange = {
-                                            induceDelay = it
-                                        },
-                                        checkedState = induceDelay
-                                    )
-                                }
-                            )
-                        }
+                        ListItem.Item(
+                            text = "Induce Delay",
+                            subText = if (induceDelay)
+                                LocalContext.current.resources.getString(R.string.fluentui_enabled)
+                            else
+                                LocalContext.current.resources.getString(R.string.fluentui_disabled),
+                            trailingAccessoryView = {
+                                ToggleSwitch(
+                                    onValueChange = {
+                                        induceDelay = it
+                                    },
+                                    checkedState = induceDelay
+                                )
+                            }
+                        )
                     }
+                }
 
-                    val microphonePressedString = getDemoAppString(DemoAppStrings.MicrophonePressed)
-                    val rightViewPressedString = getDemoAppString(DemoAppStrings.RightViewPressed)
-                    val keyboardSearchPressedString =
-                        getDemoAppString(DemoAppStrings.KeyboardSearchPressed)
+                val microphonePressedString = getDemoAppString(DemoAppStrings.MicrophonePressed)
+                val rightViewPressedString = getDemoAppString(DemoAppStrings.RightViewPressed)
+                val keyboardSearchPressedString =
+                    getDemoAppString(DemoAppStrings.KeyboardSearchPressed)
 
-                    val scope = rememberCoroutineScope()
-                    var loading by rememberSaveable { mutableStateOf(false) }
-                    val keyboardController = LocalSoftwareKeyboardController.current
+                val scope = rememberCoroutineScope()
+                var loading by rememberSaveable { mutableStateOf(false) }
+                val keyboardController = LocalSoftwareKeyboardController.current
 
-                    SearchBar(
-                        onValueChange = { query, selectedPerson ->
-                            scope.launch {
-                                loading = true
+                SearchBar(
+                    onValueChange = { query, selectedPerson ->
+                        scope.launch {
+                            loading = true
 
-                                if (induceDelay)
-                                    delay(2000)
+                            if (induceDelay)
+                                delay(2000)
 
-                                filteredPeople = listofPeople.filter {
-                                    it.firstName.lowercase().contains(query.lowercase()) ||
-                                            it.lastName.lowercase().contains(query.lowercase())
-                                } as MutableList<Person>
-                                selectedPeople = selectedPerson
+                            filteredPeople = listofPeople.filter {
+                                it.firstName.lowercase().contains(query.lowercase()) ||
+                                        it.lastName.lowercase().contains(query.lowercase())
+                            } as MutableList<Person>
+                            selectedPeople = selectedPerson
 
-                                loading = false
-                            }
-                        },
-                        style = searchBarStyle,
-                        loading = loading,
-                        selectedPerson = selectedPeople,
-                        microphoneCallback = if (enableMicrophoneCallback) {
-                            {
-                                Toast.makeText(context, microphonePressedString, Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        } else null,
-                        keyboardOptions = KeyboardOptions(
-                            autoCorrect = autoCorrectEnabled,
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Search
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSearch = {
+                            loading = false
+                        }
+                    },
+                    style = searchBarStyle,
+                    loading = loading,
+                    selectedPerson = selectedPeople,
+                    microphoneCallback = if (enableMicrophoneCallback) {
+                        {
+                            Toast.makeText(context, microphonePressedString, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    } else null,
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrect = autoCorrectEnabled,
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            Toast.makeText(
+                                context,
+                                keyboardSearchPressedString,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            keyboardController?.hide()
+                        }
+                    ),
+                    rightAccessoryIcon = if (displayRightAccessory) {
+                        FluentIcon(
+                            SearchBarIcons.Office,
+                            contentDescription = "Office",
+                            onClick = {
                                 Toast.makeText(
                                     context,
-                                    keyboardSearchPressedString,
+                                    rightViewPressedString,
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()
-                                keyboardController?.hide()
                             }
-                        ),
-                        rightAccessoryIcon = if (displayRightAccessory) {
-                            FluentIcon(
-                                SearchBarIcons.Office,
-                                contentDescription = "Office",
-                                onClick = {
-                                    Toast.makeText(
-                                        context,
-                                        rightViewPressedString,
-                                        Toast.LENGTH_SHORT
-                                    )
-                                        .show()
-                                }
-                            )
-                        } else null
-                    )
-
-                    val filteredPersona = mutableListOf<Persona>()
-                    filteredPeople.forEach {
-                        filteredPersona.add(
-                            Persona(
-                                it,
-                                "${it.firstName} ${it.lastName}",
-                                subTitle = it.email,
-                                onClick = { selectedPeople = it }
-                            )
                         )
-                    }
-                    PersonaList(
-                        personas = filteredPersona,
-                        border = BorderType.Bottom
+                    } else null
+                )
+
+                val filteredPersona = mutableListOf<Persona>()
+                filteredPeople.forEach {
+                    filteredPersona.add(
+                        Persona(
+                            it,
+                            "${it.firstName} ${it.lastName}",
+                            subTitle = it.email,
+                            onClick = { selectedPeople = it }
+                        )
                     )
                 }
+                PersonaList(
+                    personas = filteredPersona,
+                    border = BorderType.Bottom
+                )
             }
         }
     }
