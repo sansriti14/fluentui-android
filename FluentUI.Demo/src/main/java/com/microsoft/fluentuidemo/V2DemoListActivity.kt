@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,9 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Colors
 import androidx.compose.material.Divider
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,14 +41,10 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
-import androidx.compose.ui.graphics.Color.Companion.Cyan
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -72,14 +67,14 @@ import com.microsoft.fluentui.theme.token.FluentIcon
 import com.microsoft.fluentui.theme.token.FluentStyle
 import com.microsoft.fluentui.theme.token.Icon
 import com.microsoft.fluentui.theme.token.StateBrush
-import com.microsoft.fluentui.theme.token.controlTokens.AppBarInfo
 import com.microsoft.fluentui.theme.token.controlTokens.AppBarSize
-import com.microsoft.fluentui.theme.token.controlTokens.AppBarTokens
 import com.microsoft.fluentui.theme.token.controlTokens.BadgeType
 import com.microsoft.fluentui.theme.token.controlTokens.BehaviorType
+import com.microsoft.fluentui.theme.token.controlTokens.BorderType
 import com.microsoft.fluentui.theme.token.controlTokens.ColorStyle
 import com.microsoft.fluentui.theme.token.controlTokens.ListItemInfo
 import com.microsoft.fluentui.theme.token.controlTokens.ListItemTokens
+import com.microsoft.fluentui.theme.token.controlTokens.SectionHeaderStyle
 import com.microsoft.fluentui.tokenized.AppBar
 import com.microsoft.fluentui.tokenized.SearchBar
 import com.microsoft.fluentui.tokenized.controls.FloatingActionButton
@@ -89,6 +84,7 @@ import com.microsoft.fluentui.tokenized.drawer.Drawer
 import com.microsoft.fluentui.tokenized.drawer.rememberDrawerState
 import com.microsoft.fluentui.tokenized.listitem.ListItem
 import com.microsoft.fluentui.tokenized.menu.Dialog
+import com.microsoft.fluentui.tokenized.menu.Menu
 import com.microsoft.fluentui.tokenized.notification.Badge
 import com.microsoft.fluentui.tokenized.segmentedcontrols.PillMetaData
 import com.microsoft.fluentui.tokenized.segmentedcontrols.PillTabs
@@ -100,25 +96,27 @@ enum class Components {
     V2
 }
 class V2DemoListActivity : ComponentActivity() {
+    private val listItemToken = object : ListItemTokens() {
+        @Composable
+        override fun backgroundBrush(listItemInfo: ListItemInfo): StateBrush {
+            return StateBrush(
+                rest = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(themeMode = FluentTheme.themeMode)),
+                pressed = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2Pressed].value(themeMode = FluentTheme.themeMode))
+            )
+        }
+    }
     @Composable
     fun GetDrawerContent() {
         val scrollState = rememberScrollState()
-        val listItemToken = object : ListItemTokens() {
-            @Composable
-            override fun backgroundBrush(listItemInfo: ListItemInfo): StateBrush {
-                return StateBrush(
-                    rest = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(themeMode = FluentTheme.themeMode)),
-                    pressed = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2Pressed].value(themeMode = FluentTheme.themeMode))
-                )
-            }
-        }
-
         Column(
             verticalArrangement = Arrangement.spacedBy(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size320)),
             modifier = Modifier
+                .fillMaxHeight()
                 .verticalScroll(scrollState)
                 .background(
-                    color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(FluentTheme.themeMode)
+                    color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(
+                        FluentTheme.themeMode
+                    )
                 )
         ) {
             Column(
@@ -150,7 +148,7 @@ class V2DemoListActivity : ComponentActivity() {
             }
 
             Column(
-                verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100) ),
+                verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size40) ),
                 modifier = Modifier.padding(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100))
             ) {
                 val gradientColors = listOf (
@@ -191,8 +189,20 @@ class V2DemoListActivity : ComponentActivity() {
             Column(
                 verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100) )
             ) {
+                ListItem.Item(
+                    text = "Design Tokens",
+                    onClick = {
+                        val intent = Intent(this@V2DemoListActivity, V2DesignTokens::class.java)
+                        intent.putExtra(V2DemoActivity.DEMO_TITLE, "V2DesignToken")
+                        Navigation.navigationStack.add(this@V2DemoListActivity.javaClass)
+                        this@V2DemoListActivity.startActivity(intent)
+                    },
+                    listItemTokens = listItemToken
+                )
+
                 ListItem.SectionHeader(
                     title = "More",
+                    style = SectionHeaderStyle.Subtle,
                     enableChevron = false,
                     listItemTokens = listItemToken
                 )
@@ -215,50 +225,6 @@ class V2DemoListActivity : ComponentActivity() {
                 ListItem.Item(text = "Your Feedback", listItemTokens = listItemToken)
             }
         }
-
-        Column (
-            modifier = Modifier
-                .padding(vertical = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160))
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.Bottom,
-        ) {
-            ListItem.SectionHeader(
-                title = "Theme",
-                enableChevron = false,
-                listItemTokens = listItemToken
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size60),
-                    Alignment.CenterHorizontally),
-                modifier = Modifier.padding(horizontal = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100))
-            ) {
-                val painter = painterResource(id = R.drawable.ic_fluent_circle_32_filled)
-                var selectedThemeIndex by rememberSaveable { mutableStateOf(0) }
-                val painterIfSelected = painterResource(id = R.drawable.ic_fluent_checkmark_circle_32_filled)
-                val themesList = listOf (
-                    AliasTokens(),
-                    OneNoteAliasTokens(),
-                    WordAliasTokens(),
-                    ExcelAliasTokens(),
-                    PowerPointAliasTokens(),
-                    M365AliasTokens()
-                )
-
-                themesList.forEachIndexed { Index, Theme ->
-                    Icon (
-                        painter = if(selectedThemeIndex == Index) painterIfSelected else painter,
-                        contentDescription = "Theme Icon",
-                        tint = Theme.brandColor[FluentAliasTokens.BrandColorTokens.Color80],
-                        modifier = Modifier
-                            .clickable {
-                                FluentTheme.updateAliasTokens(Theme)
-                                selectedThemeIndex = Index
-                            }
-                    )
-                }
-            }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -279,7 +245,6 @@ class V2DemoListActivity : ComponentActivity() {
                 var selectedComponents by remember { mutableStateOf(Components.V2) }
                 var filteredDemoList by remember { mutableStateOf(V2DEMO.toMutableList()) }
                 var showDialog by remember { mutableStateOf(false) }
-                var checkedStyleMode by remember { mutableStateOf(false) }
 
                 Scaffold(
                     topBar = {
@@ -310,6 +275,7 @@ class V2DemoListActivity : ComponentActivity() {
                             )
                         )
 
+                        val appThemeStyle by AppTheme.observeThemeStyle(initial = FluentStyle.Neutral)
                         AppBar(
                             title = "Fluent UI Demo",
                             navigationIcon = FluentIcon(
@@ -328,35 +294,73 @@ class V2DemoListActivity : ComponentActivity() {
                                 )
                             },
                             searchMode = searchModeEnabled,
-                            style = if(checkedStyleMode) FluentStyle.Brand else FluentStyle.Neutral,
+                            style = appThemeStyle,
                             rightAccessoryView = {
-                                ToggleSwitch(
-                                    onValueChange = {
-                                        checkedStyleMode = it
-                                    },
-                                    checkedState = checkedStyleMode,
-                                )
-
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_fluent_search_24_regular),
                                     contentDescription = "Search Icon",
-                                    modifier = Modifier
-                                        .padding(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size120))
-                                        .clickable {
-                                            searchModeEnabled = true
-                                        },
-                                    tint = if(!checkedStyleMode)
+                                    modifier = Modifier.clickable {searchModeEnabled = true},
+                                    tint = if(appThemeStyle == FluentStyle.Neutral)
                                                 { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value( FluentTheme.themeMode) }
-                                            else
+                                           else
                                                 { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value( FluentTheme.themeMode) }
                                 )
+
+                                var expandedMenu by remember { mutableStateOf(false) }
+                                Box {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_fluent_more_vertical_24_regular),
+                                        contentDescription = "More",
+                                        modifier = Modifier
+                                            .padding(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size120))
+                                            .clickable { expandedMenu = true },
+                                        tint = if(appThemeStyle == FluentStyle.Neutral) { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value( FluentTheme.themeMode) } else { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value( FluentTheme.themeMode) }
+                                    )
+                                    Menu (
+                                        opened = expandedMenu,
+                                        onDismissRequest = { expandedMenu = false},
+                                    ) {
+                                        val scrollState = rememberScrollState()
+                                        Column (
+                                            modifier = Modifier.verticalScroll(scrollState)
+                                        ) {
+                                            ListItem.Item(
+                                                text = "Brand",
+                                                trailingAccessoryView = {
+                                                    ToggleSwitch(
+                                                        onValueChange = {
+                                                            if (it) { AppTheme.updateThemeStyle(FluentStyle.Brand) }
+                                                            else {AppTheme.updateThemeStyle(FluentStyle.Neutral)}
+                                                        },
+                                                        checkedState = appThemeStyle == FluentStyle.Brand,
+                                                    )
+                                                },
+                                                border = BorderType.Bottom,
+                                                listItemTokens = listItemToken
+                                            )
+
+                                            ListItem.SectionHeader(
+                                                title = "Choose your brand theme:",
+                                                enableChevron = false,
+                                                style = SectionHeaderStyle.Subtle,
+                                                listItemTokens = listItemToken
+                                            )
+
+                                            Column (
+                                                modifier = Modifier.padding(horizontal = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160)),
+                                                verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100) )
+                                            ) {
+                                                AppTheme.SetAppTheme()
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             searchBar = if (searchModeEnabled) {
                                 {
                                     SearchBar(
                                         onValueChange = { userInput, _ ->
-                                            val demo = if(selectedComponents == Components.V1) {V1DEMO.toMutableList()} else
-                                            {V2DEMO.toMutableList()}
+                                            val demo = if(selectedComponents == Components.V1) {V1DEMO.toMutableList()} else {V2DEMO.toMutableList()}
 
                                             filteredDemoList = if (userInput.isEmpty()) {demo} else {
                                                 demo.filter {
@@ -364,7 +368,7 @@ class V2DemoListActivity : ComponentActivity() {
                                                 }.toMutableList()
                                             }
                                         },
-                                        style = if(checkedStyleMode) FluentStyle.Brand else FluentStyle.Neutral,
+                                        style = appThemeStyle,
                                         navigationIconCallback = { searchModeEnabled = false },
                                         focusByDefault = true
                                     )
@@ -373,7 +377,7 @@ class V2DemoListActivity : ComponentActivity() {
                             bottomBar = if (enableButtonBar) {
                                 {
                                     PillTabs(
-                                        style = if(checkedStyleMode) FluentStyle.Brand else FluentStyle.Neutral,
+                                        style = appThemeStyle,
                                         metadataList = buttonBarList,
                                         selectedIndex = selectedComponents.ordinal,
                                     )
@@ -385,7 +389,7 @@ class V2DemoListActivity : ComponentActivity() {
 
                     floatingActionButton = {
                         FloatingActionButton(
-                            icon = ImageVector.vectorResource(id = R.drawable.ic_fluent_info_16_regular),
+                            icon = ImageVector.vectorResource(id = R.drawable.ic_fluent_document_text_24_regular),
                             onClick = {
                                 showDialog = !showDialog
                             }
@@ -400,7 +404,9 @@ class V2DemoListActivity : ComponentActivity() {
                                 Column(
                                     modifier = Modifier
                                         .background(
-                                            color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(FluentTheme.themeMode)
+                                            color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(
+                                                FluentTheme.themeMode
+                                            )
                                         )
                                         .padding(all = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160))
                                         .verticalScroll(scrollState),
@@ -445,7 +451,9 @@ class V2DemoListActivity : ComponentActivity() {
                                         val intent = Intent(this@V2DemoListActivity, it.demoClass.java)
                                         intent.putExtra(DemoActivity.DEMO_ID, it.id)
                                         intent.putExtra(V2DemoActivity.DEMO_TITLE, it.title)
+                                        Navigation.navigationStack.add(this@V2DemoListActivity.javaClass)
                                         this@V2DemoListActivity.startActivity(intent)
+
                                     },
                                     trailingAccessoryView = {
                                         if(it.isNew) {
