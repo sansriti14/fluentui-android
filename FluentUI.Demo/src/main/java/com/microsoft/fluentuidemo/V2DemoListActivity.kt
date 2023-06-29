@@ -48,18 +48,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
-import com.example.theme.token.ExcelAliasTokens
-import com.example.theme.token.M365AliasTokens
-import com.example.theme.token.OneNoteAliasTokens
-import com.example.theme.token.PowerPointAliasTokens
-import com.example.theme.token.WordAliasTokens
 import com.microsoft.fluentui.compose.Scaffold
 import com.microsoft.fluentui.icons.SearchBarIcons
 import com.microsoft.fluentui.icons.searchbaricons.Arrowback
 import com.microsoft.fluentui.theme.FluentTheme
-import com.microsoft.fluentui.theme.ThemeMode
-import com.microsoft.fluentui.theme.token.AliasTokens
 import com.microsoft.fluentui.theme.token.FluentAliasTokens
 import com.microsoft.fluentui.theme.token.FluentColor
 import com.microsoft.fluentui.theme.token.FluentGlobalTokens
@@ -100,24 +92,54 @@ class V2DemoListActivity : ComponentActivity() {
         @Composable
         override fun backgroundBrush(listItemInfo: ListItemInfo): StateBrush {
             return StateBrush(
-                rest = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(themeMode = FluentTheme.themeMode)),
-                pressed = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2Pressed].value(themeMode = FluentTheme.themeMode))
+                rest = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value()),
+                pressed = SolidColor(FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2Pressed].value())
             )
         }
     }
+
     @Composable
-    fun GetDrawerContent() {
+    fun GetDialogContent() {
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .background(color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value())
+                .padding(all = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160))
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100)
+            )
+        ) {
+            Label(
+                text = application.assets.open("dogfood-release-notes.txt").bufferedReader().use { it.readText() },
+                textStyle = FluentAliasTokens.TypographyTokens.Body2
+            )
+
+            Row {
+                Label(
+                    text = "For updates on Release Notes, ",
+                    textStyle = FluentAliasTokens.TypographyTokens.Body2
+                )
+
+                val uriHandler = LocalUriHandler.current
+                Label(
+                    text = "click here.",
+                    modifier = Modifier.clickable { uriHandler.openUri("https://github.com/microsoft/fluentui-android/releases") },
+                    textStyle = FluentAliasTokens.TypographyTokens.Body2,
+                    colorStyle = ColorStyle.Brand
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun GetDrawerContent(onRelNotepress: () -> Unit) {
         val scrollState = rememberScrollState()
         Column(
             verticalArrangement = Arrangement.spacedBy(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size320)),
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
-                .background(
-                    color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(
-                        FluentTheme.themeMode
-                    )
-                )
+                .background(color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value())
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -154,11 +176,11 @@ class V2DemoListActivity : ComponentActivity() {
                 val gradientColors = listOf (
                     FluentColor(
                         Color(0XFFD3CBE8),
-                        Color(0XFF524E5B)).value(FluentTheme.themeMode),
+                        Color(0XFF524E5B)).value(),
 
                     FluentColor(
                         Color(0xffE4CFDF),
-                        Color(0XFF3D373B)).value(FluentTheme.themeMode)
+                        Color(0XFF3D373B)).value()
                 )
 
                 Label (
@@ -177,14 +199,10 @@ class V2DemoListActivity : ComponentActivity() {
 
                 BasicText (
                     text = "Intuitive & Powerful.",
-                    style = FluentTheme.aliasTokens.typography[FluentAliasTokens.TypographyTokens.Title1]
-                        .copy(color = FluentColor(Color(0XFF2F3441), Color(0XFFA8AEBC)).value(FluentTheme.themeMode))
-                )
+                    style = FluentTheme.aliasTokens.typography[FluentAliasTokens.TypographyTokens.Title1].copy(color = FluentColor(Color(0XFF2F3441), Color(0XFFA8AEBC)).value()))
             }
 
-            Divider(
-                color = FluentTheme.aliasTokens.neutralStrokeColor[FluentAliasTokens.NeutralStrokeColorTokens.Stroke2].value(themeMode = FluentTheme.themeMode)
-            )
+            Divider(color = FluentTheme.aliasTokens.neutralStrokeColor[FluentAliasTokens.NeutralStrokeColorTokens.Stroke2].value())
 
             Column(
                 verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100) )
@@ -192,29 +210,51 @@ class V2DemoListActivity : ComponentActivity() {
                 ListItem.Item(
                     text = "Design Tokens",
                     onClick = {
-                        val intent = Intent(this@V2DemoListActivity, V2DesignTokens::class.java)
-                        intent.putExtra(V2DemoActivity.DEMO_TITLE, "V2DesignToken")
-                        Navigation.navigationStack.add(this@V2DemoListActivity.javaClass)
-                        this@V2DemoListActivity.startActivity(intent)
+                        val packageContext = this@V2DemoListActivity
+                        Navigation.forwardNavigation(
+                            packageContext,
+                            V2DesignTokens::class.java,
+                            Pair(V2DemoActivity.DEMO_TITLE, "V2 Design Token")
+                        )
+                    },
+                    leadingAccessoryView = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_fluent_color_20_regular),
+                            contentDescription = "Design Tokens Icon",
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
+                        )
                     },
                     listItemTokens = listItemToken
                 )
 
-                ListItem.SectionHeader(
-                    title = "More",
-                    style = SectionHeaderStyle.Subtle,
-                    enableChevron = false,
+                ListItem.Item(
+                    text = "Release Notes",
+                    leadingAccessoryView = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_fluent_document_text_20_regular),
+                            contentDescription = "Release Notes Icon",
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
+                        )
+                    },
+                    onClick = onRelNotepress,
                     listItemTokens = listItemToken
                 )
 
                 val uriHandler = LocalUriHandler.current
                 ListItem.Item(
-                    text = "Github Repo",
+                    text = "GitHub Repo",
+                    leadingAccessoryView = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_fluent_code_20_regular),
+                            contentDescription = "GitHub Repo Icon",
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
+                        )
+                    },
                     trailingAccessoryView = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_fluent_link_24_regular),
                             contentDescription = "Fluent Link",
-                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(FluentTheme.themeMode),
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
                             modifier = Modifier.clickable { uriHandler.openUri("https://github.com/microsoft/fluentui-android") }
                         )
                     },
@@ -222,7 +262,17 @@ class V2DemoListActivity : ComponentActivity() {
                     onClick = { uriHandler.openUri("https://github.com/microsoft/fluentui-android") }
                 )
 
-                ListItem.Item(text = "Your Feedback", listItemTokens = listItemToken)
+                ListItem.Item(
+                    text = "Your Feedback",
+                    leadingAccessoryView = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_fluent_mail_20_regular),
+                            contentDescription = "Feedback Icon",
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
+                        )
+                    },
+                    listItemTokens = listItemToken
+                )
             }
         }
     }
@@ -233,9 +283,19 @@ class V2DemoListActivity : ComponentActivity() {
             FluentTheme {
                 val drawerState = rememberDrawerState()
                 val scope = rememberCoroutineScope()
+                var showDialog by remember { mutableStateOf(false) }
+
+                if(showDialog) {
+                    Dialog (
+                        dismissOnBackPress = true,
+                        dismissOnClickedOutside = true,
+                        onDismiss = { showDialog = !showDialog }
+                    ) { GetDialogContent() }
+                }
+
                 Drawer (
                     drawerState = drawerState,
-                    drawerContent = { GetDrawerContent() },
+                    drawerContent = { GetDrawerContent { showDialog = !showDialog } },
                     behaviorType = BehaviorType.LEFT_SLIDE_OVER,
                     scrimVisible = true
                 )
@@ -244,7 +304,6 @@ class V2DemoListActivity : ComponentActivity() {
                 val enableButtonBar by rememberSaveable { mutableStateOf(true) }
                 var selectedComponents by remember { mutableStateOf(Components.V2) }
                 var filteredDemoList by remember { mutableStateOf(V2DEMO.toMutableList()) }
-                var showDialog by remember { mutableStateOf(false) }
 
                 Scaffold(
                     topBar = {
@@ -301,9 +360,9 @@ class V2DemoListActivity : ComponentActivity() {
                                     contentDescription = "Search Icon",
                                     modifier = Modifier.clickable {searchModeEnabled = true},
                                     tint = if(appThemeStyle == FluentStyle.Neutral)
-                                                { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value( FluentTheme.themeMode) }
+                                                { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value() }
                                            else
-                                                { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value( FluentTheme.themeMode) }
+                                                { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value() }
                                 )
 
                                 var expandedMenu by remember { mutableStateOf(false) }
@@ -312,18 +371,19 @@ class V2DemoListActivity : ComponentActivity() {
                                         painter = painterResource(id = R.drawable.ic_fluent_more_vertical_24_regular),
                                         contentDescription = "More",
                                         modifier = Modifier
-                                            .padding(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size120))
+                                            .padding(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100))
                                             .clickable { expandedMenu = true },
-                                        tint = if(appThemeStyle == FluentStyle.Neutral) { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value( FluentTheme.themeMode) } else { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value( FluentTheme.themeMode) }
+                                        tint = if(appThemeStyle == FluentStyle.Neutral)
+                                            { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value() }
+                                        else
+                                            { FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.ForegroundLightStatic].value() }
                                     )
                                     Menu (
                                         opened = expandedMenu,
                                         onDismissRequest = { expandedMenu = false},
                                     ) {
                                         val scrollState = rememberScrollState()
-                                        Column (
-                                            modifier = Modifier.verticalScroll(scrollState)
-                                        ) {
+                                        Column (modifier = Modifier.verticalScroll(scrollState)) {
                                             ListItem.Item(
                                                 text = "Brand",
                                                 trailingAccessoryView = {
@@ -346,10 +406,7 @@ class V2DemoListActivity : ComponentActivity() {
                                                 listItemTokens = listItemToken
                                             )
 
-                                            Column (
-                                                modifier = Modifier.padding(horizontal = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160)),
-                                                verticalArrangement = Arrangement.spacedBy( FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100) )
-                                            ) {
+                                            Column {
                                                 AppTheme.SetAppTheme()
                                             }
                                         }
@@ -361,11 +418,8 @@ class V2DemoListActivity : ComponentActivity() {
                                     SearchBar(
                                         onValueChange = { userInput, _ ->
                                             val demo = if(selectedComponents == Components.V1) {V1DEMO.toMutableList()} else {V2DEMO.toMutableList()}
-
-                                            filteredDemoList = if (userInput.isEmpty()) {demo} else {
-                                                demo.filter {
-                                                    it.title.lowercase(Locale.getDefault()).contains(userInput.lowercase(Locale.getDefault()))
-                                                }.toMutableList()
+                                            filteredDemoList = if (userInput.isEmpty()) demo else {
+                                                demo.filter { it.title.lowercase(Locale.getDefault()).contains(userInput.lowercase(Locale.getDefault())) }.toMutableList()
                                             }
                                         },
                                         style = appThemeStyle,
@@ -390,52 +444,8 @@ class V2DemoListActivity : ComponentActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             icon = ImageVector.vectorResource(id = R.drawable.ic_fluent_document_text_24_regular),
-                            onClick = {
-                                showDialog = !showDialog
-                            }
+                            onClick = { showDialog = !showDialog }
                         )
-                        if(showDialog) {
-                            Dialog (
-                                dismissOnBackPress = true,
-                                dismissOnClickedOutside = true,
-                                onDismiss = { showDialog = !showDialog }
-                            ) {
-                                val scrollState = rememberScrollState()
-                                Column(
-                                    modifier = Modifier
-                                        .background(
-                                            color = FluentTheme.aliasTokens.neutralBackgroundColor[FluentAliasTokens.NeutralBackgroundColorTokens.Background2].value(
-                                                FluentTheme.themeMode
-                                            )
-                                        )
-                                        .padding(all = FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size160))
-                                        .verticalScroll(scrollState),
-                                    verticalArrangement = Arrangement.spacedBy(FluentGlobalTokens.size(FluentGlobalTokens.SizeTokens.Size100))
-                                ) {
-                                    Label(
-                                        text = application.assets.open("dogfood-release-notes.txt").bufferedReader().use { it.readText() },
-                                        textStyle = FluentAliasTokens.TypographyTokens.Body2
-                                    )
-
-                                    Row {
-                                        Label(
-                                            text = "For updates on Release Notes, ",
-                                            textStyle = FluentAliasTokens.TypographyTokens.Body2
-                                        )
-
-                                        val uriHandler = LocalUriHandler.current
-                                        Label(
-                                            text = "click here.",
-                                            modifier = Modifier.clickable {
-                                                uriHandler.openUri("https://github.com/microsoft/fluentui-android/releases")
-                                            },
-                                            textStyle = FluentAliasTokens.TypographyTokens.Body2,
-                                            colorStyle = ColorStyle.Brand
-                                        )
-                                    }
-                                }
-                            }
-                        }
                     }
                 ) {
                     LazyColumn(
@@ -448,11 +458,13 @@ class V2DemoListActivity : ComponentActivity() {
                                 ListItem.Item(
                                     text = it.title,
                                     onClick = {
-                                        val intent = Intent(this@V2DemoListActivity, it.demoClass.java)
-                                        intent.putExtra(DemoActivity.DEMO_ID, it.id)
-                                        intent.putExtra(V2DemoActivity.DEMO_TITLE, it.title)
-                                        Navigation.navigationStack.add(this@V2DemoListActivity.javaClass)
-                                        this@V2DemoListActivity.startActivity(intent)
+                                        val packageContext = this@V2DemoListActivity
+                                        Navigation.forwardNavigation(
+                                            packageContext,
+                                            it.demoClass.java,
+                                            Pair(DemoActivity.DEMO_ID, it.id),
+                                            Pair(V2DemoActivity.DEMO_TITLE, it.title)
+                                        )
 
                                     },
                                     trailingAccessoryView = {
