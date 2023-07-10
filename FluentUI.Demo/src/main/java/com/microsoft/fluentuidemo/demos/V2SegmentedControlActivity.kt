@@ -1,14 +1,23 @@
 package com.microsoft.fluentuidemo.demos
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,12 +32,17 @@ import com.microsoft.fluentui.theme.token.FluentStyle
 import com.microsoft.fluentui.tokenized.controls.ToggleSwitch
 import com.microsoft.fluentui.tokenized.listitem.ChevronOrientation
 import com.microsoft.fluentui.tokenized.listitem.ListItem
-import com.microsoft.fluentui.tokenized.segmentedcontrols.*
-import com.microsoft.fluentuidemo.DemoActivity
+import com.microsoft.fluentui.tokenized.segmentedcontrols.PillBar
+import com.microsoft.fluentui.tokenized.segmentedcontrols.PillButton
+import com.microsoft.fluentui.tokenized.segmentedcontrols.PillMetaData
+import com.microsoft.fluentui.tokenized.segmentedcontrols.PillSwitch
+import com.microsoft.fluentui.tokenized.segmentedcontrols.PillTabs
 import com.microsoft.fluentuidemo.V2DemoActivity
-import com.microsoft.fluentuidemo.databinding.V2ActivityComposeBinding
 
 class V2SegmentedControlActivity : V2DemoActivity() {
+    override var demoActivityLink =
+        "https://github.com/microsoft/fluentui-android/blob/master/FluentUI.Demo/src/main/java/com/microsoft/fluentuidemo/demos/V2SegmentedControlActivity.kt"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val context = this

@@ -2,17 +2,23 @@ package com.microsoft.fluentuidemo.demos
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,18 +28,29 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.microsoft.fluentui.theme.FluentTheme
 import com.microsoft.fluentui.theme.FluentTheme.aliasTokens
 import com.microsoft.fluentui.theme.FluentTheme.themeMode
 import com.microsoft.fluentui.theme.token.FluentAliasTokens
 import com.microsoft.fluentui.theme.token.FluentGlobalTokens
 import com.microsoft.fluentui.theme.token.Icon
-import com.microsoft.fluentui.theme.token.controlTokens.*
-import com.microsoft.fluentui.theme.token.controlTokens.AvatarSize.*
+import com.microsoft.fluentui.theme.token.controlTokens.AvatarSize
+import com.microsoft.fluentui.theme.token.controlTokens.AvatarSize.Size24
+import com.microsoft.fluentui.theme.token.controlTokens.AvatarSize.Size40
+import com.microsoft.fluentui.theme.token.controlTokens.AvatarSize.Size56
+import com.microsoft.fluentui.theme.token.controlTokens.BasicCardInfo
+import com.microsoft.fluentui.theme.token.controlTokens.BasicCardTokens
 import com.microsoft.fluentui.theme.token.controlTokens.BorderInset.XXLarge
+import com.microsoft.fluentui.theme.token.controlTokens.BorderType
+import com.microsoft.fluentui.theme.token.controlTokens.ButtonSize
+import com.microsoft.fluentui.theme.token.controlTokens.ButtonStyle
+import com.microsoft.fluentui.theme.token.controlTokens.ListItemTextAlignment
 import com.microsoft.fluentui.theme.token.controlTokens.SectionHeaderStyle.Subtle
 import com.microsoft.fluentui.theme.token.controlTokens.TextPlacement.Bottom
-import com.microsoft.fluentui.tokenized.controls.*
+import com.microsoft.fluentui.tokenized.controls.BasicCard
+import com.microsoft.fluentui.tokenized.controls.Button
+import com.microsoft.fluentui.tokenized.controls.CheckBox
+import com.microsoft.fluentui.tokenized.controls.RadioButton
+import com.microsoft.fluentui.tokenized.controls.ToggleSwitch
 import com.microsoft.fluentui.tokenized.listitem.ChevronOrientation
 import com.microsoft.fluentui.tokenized.listitem.ListItem
 import com.microsoft.fluentui.tokenized.listitem.TextIcons
@@ -42,20 +59,21 @@ import com.microsoft.fluentui.tokenized.persona.AvatarGroup
 import com.microsoft.fluentui.tokenized.persona.Group
 import com.microsoft.fluentui.tokenized.persona.Person
 import com.microsoft.fluentui.tokenized.progress.LinearProgressIndicator
-import com.microsoft.fluentuidemo.DemoActivity
 import com.microsoft.fluentuidemo.R.drawable
 import com.microsoft.fluentuidemo.V2DemoActivity
-import com.microsoft.fluentuidemo.databinding.V2ActivityComposeBinding
 import com.microsoft.fluentuidemo.icons.ListItemIcons
 import com.microsoft.fluentuidemo.icons.listitemicons.Folder40
 import com.microsoft.fluentuidemo.util.invokeToast
 
 class V2ListItemActivity : V2DemoActivity() {
+    override var demoActivityLink =
+        "https://github.com/microsoft/fluentui-android/blob/master/FluentUI.Demo/src/main/java/com/microsoft/fluentuidemo/demos/V2ListItemActivity.kt"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setActivityContent {
-                CreateListActivityUI(this)
+            CreateListActivityUI(this)
         }
     }
 }
@@ -458,7 +476,7 @@ private fun ThreeLineListAccessoryViewContent(
 ) {
     val separator = " • "
     val footer = buildAnnotatedString {
-        withStyle(SpanStyle(color = Color.Blue)){
+        withStyle(SpanStyle(color = Color.Blue)) {
             append("3 min ago")
         }
         append(separator)
@@ -470,7 +488,7 @@ private fun ThreeLineListAccessoryViewContent(
             subText = "Wanda can you please update the file with comments",
             secondarySubTextAnnotated = footer,
             leadingAccessoryView = { LeftViewAvatar(size = Size40) },
-            trailingAccessoryView = {rightViewIconButton()},
+            trailingAccessoryView = { rightViewIconButton() },
             textMaxLines = 2,
             leadingAccessoryViewAlignment = Alignment.Top,
             trailingAccessoryViewAlignment = Alignment.Top,
@@ -663,14 +681,17 @@ private fun LeftViewFolderIcon40() {
 }
 
 @Composable
-private fun rightViewIconButton(){
-    class Tokens: BasicCardTokens(){
+private fun rightViewIconButton() {
+    class Tokens : BasicCardTokens() {
         @Composable
         override fun cornerRadius(basicCardInfo: BasicCardInfo): Dp {
             return FluentGlobalTokens.cornerRadius(FluentGlobalTokens.CornerRadiusTokens.CornerRadius40)
         }
     }
-    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         BasicCard(Modifier.padding(all = 4.dp), basicCardTokens = Tokens()) {
             Icon(Icons.Outlined.MoreVert, contentDescription = "")
         }
