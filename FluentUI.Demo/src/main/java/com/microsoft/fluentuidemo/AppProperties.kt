@@ -46,6 +46,7 @@ import com.microsoft.fluentui.theme.token.controlTokens.SectionHeaderStyle
 import com.microsoft.fluentui.tokenized.controls.RadioButton
 import com.microsoft.fluentui.tokenized.controls.ToggleSwitch
 import com.microsoft.fluentui.tokenized.listitem.ListItem
+import com.microsoft.fluentui.tokenized.menu.Dialog
 import com.microsoft.fluentui.tokenized.menu.Menu
 
 object AppTheme : ViewModel() {
@@ -86,9 +87,8 @@ object AppTheme : ViewModel() {
             opened = expandedMenu,
             onDismissRequest = { expandedMenu = false },
         ) {
-            val scrollState = rememberScrollState()
             Column(
-                modifier = Modifier.verticalScroll(scrollState)
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 var accentEnabled by remember { mutableStateOf(false) }
                 ListItem.Item(
@@ -126,6 +126,30 @@ object AppTheme : ViewModel() {
                     listItemTokens = CustomizedTokens.listItemTokens
                 )
 
+                var showAppearanceDialog by remember { mutableStateOf(false) }
+                ListItem.Item(
+                    text = "Appearance",
+                    leadingAccessoryView = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_fluent_dark_theme_24_regular),
+                            contentDescription = "Appearance Icon",
+                            tint = FluentTheme.aliasTokens.neutralForegroundColor[FluentAliasTokens.NeutralForegroundColorTokens.Foreground2].value(),
+                        )
+                    },
+                    onClick = { showAppearanceDialog = !showAppearanceDialog },
+                    listItemTokens = CustomizedTokens.listItemTokens
+                )
+
+                if (showAppearanceDialog) {
+                    Dialog(
+                        onDismiss = { showAppearanceDialog = !showAppearanceDialog },
+                        dismissOnClickedOutside = true,
+                        dismissOnBackPress = true
+                    ) {
+                        SetAppThemeMode()
+                    }
+                }
+
                 ListItem.SectionHeader(
                     title = "Choose your brand theme:",
                     enableChevron = false,
@@ -133,9 +157,7 @@ object AppTheme : ViewModel() {
                     listItemTokens = CustomizedTokens.listItemTokens
                 )
 
-                Column {
-                    SetAppTheme()
-                }
+                SetAppTheme()
             }
         }
     }
